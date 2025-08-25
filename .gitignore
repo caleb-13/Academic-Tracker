@@ -1,0 +1,18 @@
+# Visual Studio cache
+.vs/
+
+# Build results
+bin/
+obj/
+
+# User-specific files
+*.user
+*.suo
+
+# SQLite dbs (optional if you want to exclude test data)
+*.db3
+*.db3-journal
+
+# Other common junk
+*.log
+*.tmp
