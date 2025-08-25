@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    x:Class="Mobile_Application_Development.Views.TermDetailPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:models="clr-namespace:Mobile_Application_Development.Models"
+    Title="Term Details">
+
+    <ScrollView>
+        <VerticalStackLayout Padding="16" Spacing="16">
+
+           
+            <HorizontalStackLayout Spacing="10" HorizontalOptions="Center">
+                <Button Text="Save" Clicked="OnSaveTermClicked" />
+                <Button Text="Delete" Clicked="OnDeleteTermClicked" />
+            </HorizontalStackLayout>
+
+           
+            <Entry Placeholder="Term Title" Text="{Binding Term.Title}" />
+
+            <Grid ColumnDefinitions="1*,1*" ColumnSpacing="12">
+                <VerticalStackLayout>
+                    <Label Text="Start Date" />
+                    <DatePicker Date="{Binding Term.StartDate}" />
+                </VerticalStackLayout>
+                <VerticalStackLayout Grid.Column="1">
+                    <Label Text="End Date" />
+                    <DatePicker Date="{Binding Term.EndDate}" />
+                </VerticalStackLayout>
+            </Grid>
+
+            
+            <Grid ColumnDefinitions="*,Auto" VerticalOptions="Center" Padding="0,8,0,0">
+                <Label Text="Courses (max 6)" FontAttributes="Bold" />
+                <Button x:Name="AddCourseButton"
+                        Grid.Column="1"
+                        Text="Add Course"
+                        Clicked="OnAddCourseClicked" />
+            </Grid>
+
+            <CollectionView x:Name="CoursesCollection"
+                            ItemsSource="{Binding Courses}"
+                            SelectionMode="None">
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="models:Course">
+                        <Frame Padding="10" Margin="0,6" BorderColor="LightGray" CornerRadius="10">
+                            <Grid ColumnDefinitions="*,Auto" ColumnSpacing="10">
+                                <VerticalStackLayout Spacing="4">
+                                    <Label Text="{Binding Title}" FontAttributes="Bold" />
+                                    <Label Text="{Binding StartDate, StringFormat='Start: {0:d}'}" />
+                                    <Label Text="{Binding EndDate,   StringFormat='End: {0:d}'}" />
+                                </VerticalStackLayout>
+
+                                
+                                <HorizontalStackLayout Grid.Column="1" Spacing="8">
+                                    <Button Text="Edit"
+                                            CommandParameter="{Binding .}"
+                                            Clicked="OnEditCourseClicked" />
+                                    <Button Text="Remove"
+                                            CommandParameter="{Binding .}"
+                                            Clicked="OnRemoveCourseClicked" />
+                                </HorizontalStackLayout>
+                            </Grid>
+                        </Frame>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

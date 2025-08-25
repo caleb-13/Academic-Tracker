@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:viewmodels="clr-namespace:Mobile_Application_Development.ViewModels"
+    xmlns:models="clr-namespace:Mobile_Application_Development.Models"
+    x:Class="Mobile_Application_Development.Views.TermsPage"
+    x:DataType="viewmodels:TermsViewModel"
+    Title="Academic Terms">
+
+    <VerticalStackLayout Padding="16" Spacing="10">
+
+        <!-- Term creation fields -->
+        <Entry Placeholder="Term Title" Text="{Binding Title}" />
+        <DatePicker Date="{Binding StartDate}" />
+        <DatePicker Date="{Binding EndDate}" />
+        <Button Text="Save Term" Command="{Binding SaveCommand}" />
+
+        <!-- List of existing terms -->
+        <CollectionView ItemsSource="{Binding Terms}"
+                        SelectionMode="Single"
+                        SelectionChanged="OnTermSelected"
+                        ItemsLayout="VerticalList">
+            <CollectionView.EmptyView>
+                <Label Text="No terms yet. Add one above to get started."
+                       HorizontalTextAlignment="Center"
+                       Margin="0,20,0,0" />
+            </CollectionView.EmptyView>
+
+            <CollectionView.ItemTemplate>
+                <DataTemplate x:DataType="models:Term">
+                    <Frame Padding="10" Margin="0,6" BorderColor="LightGray" CornerRadius="10">
+                        <Grid ColumnDefinitions="*,Auto" ColumnSpacing="10">
+                            <VerticalStackLayout Spacing="2">
+                                <Label Text="{Binding Title}" FontAttributes="Bold" />
+                                <Label Text="{Binding StartDate, StringFormat='Start: {0:MM/dd/yyyy}'}" FontSize="12" />
+                                <Label Text="{Binding EndDate,   StringFormat='End: {0:MM/dd/yyyy}'}" FontSize="12" />
+                            </VerticalStackLayout>
+
+                            <HorizontalStackLayout Grid.Column="1" Spacing="8">
+                                <!-- Replace Command with Clicked handler -->
+                                <Button Text="Edit"
+                                        Clicked="OnTermEditClicked"
+                                        CommandParameter="{Binding .}" />
+                                <Button Text="Delete"
+                                        Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.DeleteCommand}"
+                                        CommandParameter="{Binding .}" />
+                            </HorizontalStackLayout>
+                        </Grid>
+                    </Frame>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+
+    </VerticalStackLayout>
+</ContentPage>

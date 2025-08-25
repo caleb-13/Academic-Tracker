@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    x:Class="Mobile_Application_Development.Views.SearchPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:viewmodels="clr-namespace:Mobile_Application_Development.ViewModels"
+    Title="Search">
+
+    <ContentPage.BindingContext>
+        <!-- no DI: create the VM directly -->
+        <viewmodels:SearchViewModel />
+    </ContentPage.BindingContext>
+
+    <VerticalStackLayout Padding="16" Spacing="12">
+
+        <!-- Search input -->
+        <SearchBar
+            Placeholder="Search terms, courses, assessments"
+            Text="{Binding Query}"
+            SearchCommand="{Binding RunSearchCommand}" />
+
+        <!-- Results list -->
+        <CollectionView ItemsSource="{Binding Results}">
+            <CollectionView.EmptyView>
+                <Label Text="Type and press search to see results." Opacity="0.6" HorizontalOptions="Center" />
+            </CollectionView.EmptyView>
+
+            <CollectionView.ItemTemplate>
+                <DataTemplate>
+                    <Grid Padding="8" ColumnDefinitions="Auto,*,Auto">
+                        <Label Text="{Binding Entity}" FontAttributes="Bold" Margin="0,0,12,0" />
+                        <VerticalStackLayout Grid.Column="1" Spacing="2">
+                            <Label Text="{Binding Title}" FontSize="16" />
+                            <Label Text="{Binding Subtitle}" FontSize="12" Opacity="0.7" />
+                        </VerticalStackLayout>
+                        <!-- You can wire this up later to navigate to details -->
+                        <Image Grid.Column="2" Source="chevron_right.png" WidthRequest="20" HeightRequest="20" />
+                    </Grid>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+
+    </VerticalStackLayout>
+</ContentPage>

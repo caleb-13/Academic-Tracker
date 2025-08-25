@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:viewmodels="clr-namespace:Mobile_Application_Development.ViewModels"
+    x:Class="Mobile_Application_Development.Views.CourseDetailPage"
+    x:DataType="viewmodels:CourseDetailViewModel"
+    Title="Course Details">
+
+    <ScrollView>
+        <VerticalStackLayout Padding="16" Spacing="12">
+
+            <Label Text="Course Title" FontAttributes="Bold" />
+            <Entry Placeholder="Enter course title" Text="{Binding Title, Mode=TwoWay}" />
+
+            <Grid ColumnDefinitions="1*,1*" ColumnSpacing="12">
+                <VerticalStackLayout>
+                    <Label Text="Start Date" />
+                    <DatePicker Date="{Binding StartDate, Mode=TwoWay}" />
+                </VerticalStackLayout>
+                <VerticalStackLayout Grid.Column="1">
+                    <Label Text="End Date" />
+                    <DatePicker Date="{Binding EndDate, Mode=TwoWay}" MinimumDate="{Binding StartDate}" />
+                </VerticalStackLayout>
+            </Grid>
+
+            <Label Text="Status" FontAttributes="Bold" />
+            <Picker ItemsSource="{Binding StatusOptions}" SelectedItem="{Binding SelectedStatus, Mode=TwoWay}" />
+
+            <Label Text="Instructor Name" FontAttributes="Bold" />
+            <Entry Text="{Binding InstructorName, Mode=TwoWay}" />
+
+            <Label Text="Instructor Phone" FontAttributes="Bold" />
+            <Entry Text="{Binding InstructorPhone, Mode=TwoWay}" Keyboard="Telephone" />
+
+            <Label Text="Instructor Email" FontAttributes="Bold" />
+            <Entry Text="{Binding InstructorEmail, Mode=TwoWay}" Keyboard="Email" />
+
+            <Label Text="Notes (optional)" FontAttributes="Bold" />
+            <Editor Text="{Binding Notes, Mode=TwoWay}" HeightRequest="100" AutoSize="TextChanges" />
+
+            <!-- Course-level alerts -->
+            <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto" ColumnSpacing="12">
+                <Label Text="Alert on Start Date" Grid.Row="0" Grid.Column="0" />
+                <Switch IsToggled="{Binding StartAlertEnabled, Mode=TwoWay}" Grid.Row="0" Grid.Column="1" />
+
+                <Label Text="Alert on End Date" Grid.Row="1" Grid.Column="0" />
+                <Switch IsToggled="{Binding EndAlertEnabled, Mode=TwoWay}" Grid.Row="1" Grid.Column="1" />
+            </Grid>
+
+            <!-- Performance Assessment -->
+            <Frame BorderColor="LightGray" CornerRadius="10" Padding="12">
+                <VerticalStackLayout Spacing="8">
+                    <Label Text="Performance Assessment" FontAttributes="Bold" />
+                    <Entry Placeholder="Name" Text="{Binding PerfTitle, Mode=TwoWay}" />
+
+                    <Label Text="Exam Start Date" />
+                    <DatePicker Date="{Binding PerfStartDate, Mode=TwoWay}" />
+                    <StackLayout Orientation="Horizontal" Spacing="8">
+                        <Label Text="Enable Start Alert" VerticalOptions="Center" />
+                        <Switch IsToggled="{Binding PerfStartAlertEnabled, Mode=TwoWay}" />
+                    </StackLayout>
+
+                    <Label Text="Exam End Date" />
+                    <DatePicker Date="{Binding PerfEndDate, Mode=TwoWay}" />
+                    <StackLayout Orientation="Horizontal" Spacing="8">
+                        <Label Text="Enable End Alert" VerticalOptions="Center" />
+                        <Switch IsToggled="{Binding PerfEndAlertEnabled, Mode=TwoWay}" />
+                    </StackLayout>
+
+                    <Button Text="Delete Performance Assessment" Command="{Binding DeletePerfCommand}" />
+                </VerticalStackLayout>
+            </Frame>
+
+            <!-- Objective Assessment -->
+            <Frame BorderColor="LightGray" CornerRadius="10" Padding="12">
+                <VerticalStackLayout Spacing="8">
+                    <Label Text="Objective Assessment" FontAttributes="Bold" />
+                    <Entry Placeholder="Name" Text="{Binding ObjTitle, Mode=TwoWay}" />
+
+                    <Label Text="Exam Start Date" />
+                    <DatePicker Date="{Binding ObjStartDate, Mode=TwoWay}" />
+                    <StackLayout Orientation="Horizontal" Spacing="8">
+                        <Label Text="Enable Start Alert" VerticalOptions="Center" />
+                        <Switch IsToggled="{Binding ObjStartAlertEnabled, Mode=TwoWay}" />
+                    </StackLayout>
+
+                    <Label Text="Exam End Date" />
+                    <DatePicker Date="{Binding ObjEndDate, Mode=TwoWay}" />
+                    <StackLayout Orientation="Horizontal" Spacing="8">
+                        <Label Text="Enable End Alert" VerticalOptions="Center" />
+                        <Switch IsToggled="{Binding ObjEndAlertEnabled, Mode=TwoWay}" />
+                    </StackLayout>
+
+                    <Button Text="Delete Objective Assessment" Command="{Binding DeleteObjCommand}" />
+                </VerticalStackLayout>
+            </Frame>
+
+            <HorizontalStackLayout Spacing="10" HorizontalOptions="Center" Margin="0,8,0,16">
+                <Button Text="Save" Command="{Binding SaveCommand}" />
+                <Button Text="Delete" Command="{Binding DeleteCommand}" />
+                <Button Text="Share Notes" Command="{Binding ShareNotesCommand}" />
+            </HorizontalStackLayout>
+
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>
