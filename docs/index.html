@@ -1,15 +1,61 @@
-<!doctype html><meta charset="utf-8">
+<!doctype html>
+<meta charset="utf-8">
 <title>Academic Tracker</title>
 <meta name="viewport" content="width=device-width,initial-scale=1">
+
+<style>
+  :root { --fg:#111; --muted:#555; --border:#e6e6e6; }
+  body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; color: var(--fg);
+         margin: 2rem; max-width: 920px; }
+  h1 { margin: 0 0 .25rem 0; font-size: 1.75rem; }
+  .lead { color: var(--muted); margin: 0 0 1rem 0; }
+  .actions { display: flex; flex-wrap: wrap; gap: .5rem; margin: 1rem 0 1.25rem; }
+  .btn { display: inline-block; padding: .65rem .9rem; border: 1px solid var(--border);
+         border-radius: 10px; text-decoration: none; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+          gap: 12px; margin-top: .5rem; }
+  img { width: 100%; height: auto; border: 1px solid var(--border); border-radius: 10px; }
+  ol { margin-top: .5rem; }
+  footer { margin-top: 1.25rem; color: var(--muted); font-size: .95rem; }
+</style>
+
 <h1>Academic Tracker</h1>
-<p>Track terms, courses, and assessments with search and a simple reports view.</p>
+<p class="lead">Track terms, courses, and assessments with search and a simple reports view.</p>
 
-<p><a href="https://github.com/caleb-13/Academic-Tracker/releases/download/V1.0%2C0/AcademicTracker-debug.apk">
-  Download Android APK</a></p>
+<div class="actions">
+  <!-- Using your current release/tag link with a comma in the tag (works) -->
+  <a class="btn" href="https://github.com/caleb-13/Academic-Tracker/releases/download/V1.0%2C0/AcademicTracker-debug.apk">
+    Download Android APK
+  </a>
 
-<p>GitHub: https://github.com/caleb-13/Academic-Tracker</p>
-<p>GitLab: PASTE-YOUR-GITLAB-URL</p>
+  <!-- Optional (cleaner): after you re-tag as v1.0.0, switch to the 'latest' URL below
+  <a class="btn" href="https://github.com/caleb-13/Academic-Tracker/releases/latest/download/AcademicTracker-debug.apk">
+    Download Android APK
+  </a>
+  -->
+
+  <a class="btn" href="https://github.com/caleb-13/Academic-Tracker">GitHub Repo</a>
+  <a class="btn" href="GITLAB_URL_HERE">GitLab Repo</a>
+</div>
+
+<h2>Screens</h2>
+<p class="lead">Low-fi shows structure and flow; hi-fi are screenshots from the running app.</p>
+
+<!-- Optional: add 2–3 images into /docs and uncomment these lines
+<div class="grid">
+  <img src="hifi-terms.png" alt="Terms screen">
+  <img src="hifi-course-detail.png" alt="Course detail screen">
+  <img src="hifi-reports.png" alt="Reports and preview">
+</div>
+-->
 
 <h2>Install notes</h2>
-<ol><li>Use an Android device or emulator.</li>
-<li>Enable “Install unknown apps,” then open the APK.</li></ol>
+<ol>
+  <li>Use an Android device or emulator.</li>
+  <li>Enable “Install unknown apps,” then open the APK to install.</li>
+</ol>
+
+<footer>
+  If the download link ever 404s, open the <em>Releases</em> page, copy the asset link,
+  and update the href above to match the exact filename.
+</footer>
