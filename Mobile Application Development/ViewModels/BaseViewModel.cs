@@ -1,5 +1,4 @@
-﻿// ViewModels/BaseViewModel.cs
-using System.ComponentModel;
+﻿using System.ComponentModel;
 using System.Runtime.CompilerServices;
 
 namespace Mobile_Application_Development.ViewModels

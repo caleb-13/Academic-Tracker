@@ -1,7 +1,7 @@
 ﻿using System.Collections.ObjectModel;
 using System.Threading.Tasks;
 using System.Windows.Input;
-using Microsoft.Maui.Controls;                    // for Command
+using Microsoft.Maui.Controls;                   
 using Mobile_Application_Development.Services;
 
 namespace Mobile_Application_Development.ViewModels
@@ -30,7 +30,7 @@ namespace Mobile_Application_Development.ViewModels
 
         public SearchViewModel()
         {
-            // keep it simple: manual new, no DI
+            
             _service = new SearchService(new Data.TermDatabase());
             RunSearchCommand = new Command(async () => await RunSearchAsync());
         }

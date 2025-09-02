@@ -1,6 +1,7 @@
-using System.Collections.ObjectModel;
-using Mobile_Application_Development.Data;
+﻿using Mobile_Application_Development.Data;
 using Mobile_Application_Development.Models;
+using System.Collections.ObjectModel;
+using System.Text.RegularExpressions;
 
 namespace Mobile_Application_Development.Views
 {
@@ -20,8 +21,9 @@ namespace Mobile_Application_Development.Views
             _db = db ?? throw new ArgumentNullException(nameof(db));
             Term = term ?? throw new ArgumentNullException(nameof(term));
 
+            
             BindingContext = this;
-        }
+           }
 
         protected override async void OnAppearing()
         {
@@ -58,22 +60,62 @@ namespace Mobile_Application_Development.Views
                 AddCourseButton.IsEnabled = Courses.Count < MaxCoursesPerTerm;
         }
 
-       
+        private static string Clean(string? s)
+        {
+            if (string.IsNullOrWhiteSpace(s)) return string.Empty;
+            var trimmed = s.Trim();
+            return Regex.Replace(trimmed, @"\s{2,}", " ");
+        }
+
         private async void OnSaveTermClicked(object sender, EventArgs e)
         {
-            if (string.IsNullOrWhiteSpace(Term.Title))
+            var errors = new List<string>();
+
+           
+            var titleClean = Clean(Term.Title);
+            var start = Term.StartDate;
+            var end = Term.EndDate;
+
+            if (string.IsNullOrWhiteSpace(titleClean))
+                errors.Add("Please enter a term title.");
+
+            if (end < start)
+                errors.Add("End date cannot be before start date.");
+
+            
+            if (Term.Id != 0)
             {
-                await DisplayAlert("Validation", "Please enter a term title.", "OK");
-                return;
+                try
+                {
+                    var courses = await _db.GetCoursesForTermAsync(Term.Id);
+                    foreach (var c in courses)
+                    {
+                        if (c.StartDate < start || c.EndDate > end)
+                        {
+                            errors.Add($"Course '{c.Title}' falls outside the new term dates.");
+                            break;
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    errors.Add($"Could not verify courses in term: {ex.Message}");
+                }
             }
-            if (Term.EndDate < Term.StartDate)
+
+            if (errors.Count > 0)
             {
-                await DisplayAlert("Validation", "End date cannot be before start date.", "OK");
+                await DisplayAlert("Please fix the following", "• " + string.Join("\n• ", errors), "OK");
                 return;
             }
 
             try
             {
+                
+                Term.Title = titleClean;
+                Term.StartDate = start;
+                Term.EndDate = end;
+
                 await _db.SaveTermAsync(Term);
                 await DisplayAlert("Saved", "Term saved.", "OK");
                 await Navigation.PopAsync();
@@ -106,7 +148,6 @@ namespace Mobile_Application_Development.Views
             }
         }
 
-        
         private async void OnAddCourseClicked(object sender, EventArgs e)
         {
             try
@@ -119,7 +160,7 @@ namespace Mobile_Application_Development.Views
                     return;
                 }
 
-                
+               
                 if (Term.Id == 0)
                     await _db.SaveTermAsync(Term);
 
@@ -132,7 +173,6 @@ namespace Mobile_Application_Development.Views
                 };
 
                 await Navigation.PushAsync(new CourseDetailPage(_db, course));
-                
             }
             catch (Exception ex)
             {
@@ -140,7 +180,6 @@ namespace Mobile_Application_Development.Views
             }
         }
 
-       
         private async void OnRemoveCourseClicked(object sender, EventArgs e)
         {
             if (sender is not Button btn || btn.CommandParameter is not Course course)
@@ -161,7 +200,6 @@ namespace Mobile_Application_Development.Views
             }
         }
 
-        
         private async void OnEditCourseClicked(object sender, EventArgs e)
         {
             if (sender is not Button btn || btn.CommandParameter is not Course course)
@@ -170,7 +208,6 @@ namespace Mobile_Application_Development.Views
             try
             {
                 await Navigation.PushAsync(new CourseDetailPage(_db, course));
-               
             }
             catch (Exception ex)
             {

@@ -10,13 +10,13 @@
 
     <VerticalStackLayout Padding="16" Spacing="10">
 
-        <!-- Term creation fields -->
+       
         <Entry Placeholder="Term Title" Text="{Binding Title}" />
         <DatePicker Date="{Binding StartDate}" />
         <DatePicker Date="{Binding EndDate}" />
         <Button Text="Save Term" Command="{Binding SaveCommand}" />
 
-        <!-- List of existing terms -->
+       
         <CollectionView ItemsSource="{Binding Terms}"
                         SelectionMode="Single"
                         SelectionChanged="OnTermSelected"
@@ -38,7 +38,6 @@
                             </VerticalStackLayout>
 
                             <HorizontalStackLayout Grid.Column="1" Spacing="8">
-                                <!-- Replace Command with Clicked handler -->
                                 <Button Text="Edit"
                                         Clicked="OnTermEditClicked"
                                         CommandParameter="{Binding .}" />

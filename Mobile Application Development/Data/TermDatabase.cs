@@ -18,13 +18,14 @@ namespace Mobile_Application_Development.Data
         public TermDatabase()
         {
             _dbPath = Path.Combine(FileSystem.AppDataDirectory, "mad_terms.db3");
-            InitializeAsync(); 
+            InitializeAsync();
         }
 
         private async Task InitializeAsync()
         {
             await GetConnAsync();
-            await SeedIfEmptyAsync();
+            await SeedLookupsAsync();   
+            await SeedIfEmptyAsync();   
         }
 
         private async Task<SQLiteAsyncConnection> GetConnAsync()
@@ -39,15 +40,33 @@ namespace Mobile_Application_Development.Data
                 await _conn.CreateTableAsync<Term>();
                 await _conn.CreateTableAsync<Course>();
                 await _conn.CreateTableAsync<Assessment>();
+                await _conn.CreateTableAsync<StatusOption>(); // <-- added
             }
             return _conn;
         }
 
-        
+        private async Task SeedLookupsAsync()
+        {
+            var db = await GetConnAsync();
+            var existing = await db.Table<StatusOption>()
+                                   .Where(x => x.Category == "CourseStatus")
+                                   .CountAsync();
+            if (existing > 0) return;
+
+            var rows = new[]
+            {
+                new StatusOption { Category="CourseStatus", Code="PlanToTake", Label="Plan to take", Order=1 },
+                new StatusOption { Category="CourseStatus", Code="InProgress",  Label="In progress",  Order=2 },
+                new StatusOption { Category="CourseStatus", Code="Completed",   Label="Completed",    Order=3 },
+                new StatusOption { Category="CourseStatus", Code="Dropped",     Label="Dropped",      Order=4 },
+            };
+            await db.InsertAllAsync(rows);
+        }
+
         private async Task SeedIfEmptyAsync()
         {
             var terms = await GetTermsAsync();
-            if (terms.Count > 0) return;   
+            if (terms.Count > 0) return;
 
             var term = new Term
             {
@@ -88,7 +107,6 @@ namespace Mobile_Application_Development.Data
             };
             await SaveAssessmentAsync(obj);
         }
-        
 
         public async Task<List<Term>> GetTermsAsync()
         {
@@ -162,21 +180,26 @@ namespace Mobile_Application_Development.Data
             await db.DeleteAsync(assessment);
         }
 
-        
         public async Task<List<Course>> GetAllCoursesAsync()
         {
             var db = await GetConnAsync();
             return await db.Table<Course>().OrderBy(c => c.Title).ToListAsync();
         }
 
-        
         public async Task<List<Assessment>> GetAllAssessmentsAsync()
         {
             var db = await GetConnAsync();
             return await db.Table<Assessment>().OrderBy(a => a.DueDate).ToListAsync();
         }
 
-
+        public async Task<List<string>> GetCourseStatusLabelsAsync()
+        {
+            var db = await GetConnAsync();
+            var rows = await db.Table<StatusOption>()
+                               .Where(x => x.Category == "CourseStatus")
+                               .OrderBy(x => x.Order)
+                               .ToListAsync();
+            return rows.Select(r => r.Label).ToList();
+        }
     }
-
 }

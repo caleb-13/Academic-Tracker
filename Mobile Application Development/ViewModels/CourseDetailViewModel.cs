@@ -7,6 +7,8 @@ using Mobile_Application_Development.Models;
 using System.Collections.Generic;
 using Plugin.LocalNotification;
 using Microsoft.Maui.ApplicationModel.DataTransfer;
+using System.Collections.ObjectModel;  
+using System.Linq;                      
 
 namespace Mobile_Application_Development.ViewModels
 {
@@ -37,6 +39,7 @@ namespace Mobile_Application_Development.ViewModels
             EndAlertEnabled = _course.EndAlertEnabled;
 
             _ = LoadAssessmentsAsync();
+            _ = LoadStatusOptionsAsync(); 
 
             SaveCommand = new AsyncRelayCommand(SaveAsync, () => !IsBusy);
             DeleteCommand = new AsyncRelayCommand(DeleteAsync, () => !IsBusy);
@@ -76,6 +79,19 @@ namespace Mobile_Application_Development.ViewModels
             ObjEndAlertEnabled = _obj?.EndAlertEnabled ?? false;
         }
 
+        
+        public ObservableCollection<string> StatusOptions { get; } = new();
+
+        private async Task LoadStatusOptionsAsync()
+        {
+            var labels = await _db.GetCourseStatusLabelsAsync(); 
+            StatusOptions.Clear();
+            foreach (var l in labels) StatusOptions.Add(l);
+
+            if (string.IsNullOrWhiteSpace(SelectedStatus) || !StatusOptions.Contains(SelectedStatus))
+                SelectedStatus = StatusOptions.FirstOrDefault() ?? "Plan to take";
+        }
+
         private bool _isBusy;
         public bool IsBusy
         {
@@ -89,8 +105,6 @@ namespace Mobile_Application_Development.ViewModels
                 }
             }
         }
-
-        public IReadOnlyList<string> StatusOptions { get; } = new[] { "Plan to take", "In progress", "Completed", "Dropped" };
 
         private string _title = string.Empty;
         public string Title { get => _title; set => SetProperty(ref _title, value); }
@@ -137,7 +151,6 @@ namespace Mobile_Application_Development.ViewModels
         private bool _perfEndAlertEnabled;
         public bool PerfEndAlertEnabled { get => _perfEndAlertEnabled; set => SetProperty(ref _perfEndAlertEnabled, value); }
 
-      
         private string _objTitle = string.Empty;
         public string ObjTitle { get => _objTitle; set => SetProperty(ref _objTitle, value); }
 
@@ -153,12 +166,30 @@ namespace Mobile_Application_Development.ViewModels
         private bool _objEndAlertEnabled;
         public bool ObjEndAlertEnabled { get => _objEndAlertEnabled; set => SetProperty(ref _objEndAlertEnabled, value); }
 
-        
         public IAsyncRelayCommand SaveCommand { get; }
         public IAsyncRelayCommand DeleteCommand { get; }
         public IRelayCommand ShareNotesCommand { get; }
         public IAsyncRelayCommand DeletePerfCommand { get; }
         public IAsyncRelayCommand DeleteObjCommand { get; }
+
+        
+        private static string Clean(string? s)
+        {
+            if (string.IsNullOrWhiteSpace(s)) return string.Empty;
+            var trimmed = s.Trim();
+            return Regex.Replace(trimmed, @"\s{2,}", " ");
+        }
+
+        private static bool LooksLikeEmail(string email) =>
+            !string.IsNullOrWhiteSpace(email) &&
+            Regex.IsMatch(email, @"^[^@\s]+@[^@\s]+\.[^@\s]+$", RegexOptions.CultureInvariant);
+
+        private static bool LooksLikePhone(string phone)
+        {
+            if (string.IsNullOrWhiteSpace(phone)) return false;
+            var digits = Regex.Replace(phone, @"\D", "");
+            return digits.Length >= 10 && digits.Length <= 15;
+        }
 
         private async Task SaveAsync()
         {
@@ -166,40 +197,82 @@ namespace Mobile_Application_Development.ViewModels
             IsBusy = true;
             try
             {
-                if (string.IsNullOrWhiteSpace(Title))
-                { await Shell.Current.DisplayAlert("Validation", "Please enter a course title.", "OK"); return; }
-                if (EndDate < StartDate)
-                { await Shell.Current.DisplayAlert("Validation", "End date cannot be before start date.", "OK"); return; }
-                if (string.IsNullOrWhiteSpace(InstructorName))
-                { await Shell.Current.DisplayAlert("Validation", "Instructor name is required.", "OK"); return; }
-                if (!IsValidEmail(InstructorEmail))
-                { await Shell.Current.DisplayAlert("Validation", "Please enter a valid email address.", "OK"); return; }
-                if (!IsLikelyPhone(InstructorPhone))
-                { await Shell.Current.DisplayAlert("Validation", "Please enter a valid phone number.", "OK"); return; }
+                var errors = new List<string>();
 
-                _course.Title = Title.Trim();
+                
+                var titleClean = Clean(Title);
+                var instrNameClean = Clean(InstructorName);
+                var instrEmailClean = Clean(InstructorEmail);
+                var instrPhoneClean = Clean(InstructorPhone);
+                var notesClean = Notes?.Trim() ?? string.Empty;
+
+               
+                if (string.IsNullOrWhiteSpace(titleClean))
+                    errors.Add("Please enter a course title.");
+                if (EndDate < StartDate)
+                    errors.Add("End date cannot be before start date.");
+                if (string.IsNullOrWhiteSpace(instrNameClean))
+                    errors.Add("Instructor name is required.");
+                if (!string.IsNullOrWhiteSpace(instrEmailClean) && !LooksLikeEmail(instrEmailClean))
+                    errors.Add("Instructor email must look like name@domain.tld.");
+                if (!string.IsNullOrWhiteSpace(instrPhoneClean) && !LooksLikePhone(instrPhoneClean))
+                    errors.Add("Instructor phone must contain 10–15 digits.");
+
+               
+                bool perfProvided = !string.IsNullOrWhiteSpace(PerfTitle) || PerfStartAlertEnabled || PerfEndAlertEnabled;
+                bool objProvided = !string.IsNullOrWhiteSpace(ObjTitle) || ObjStartAlertEnabled || ObjEndAlertEnabled;
+
+                var perfTitleClean = Clean(PerfTitle);
+                var objTitleClean = Clean(ObjTitle);
+
+                if (perfProvided)
+                {
+                    if (string.IsNullOrWhiteSpace(perfTitleClean))
+                        errors.Add("Performance assessment title is required (since alerts/dates were set).");
+                    if (PerfEndDate < PerfStartDate)
+                        errors.Add("Performance assessment due date cannot be before its start date.");
+                }
+
+                if (objProvided)
+                {
+                    if (string.IsNullOrWhiteSpace(objTitleClean))
+                        errors.Add("Objective assessment title is required (since alerts/dates were set).");
+                    if (ObjEndDate < ObjStartDate)
+                        errors.Add("Objective assessment due date cannot be before its start date.");
+                }
+
+                if (errors.Count > 0)
+                {
+                    await Shell.Current.DisplayAlert("Please fix the following", "• " + string.Join("\n• ", errors), "OK");
+                    return;
+                }
+
+               
+                _course.Title = titleClean;
                 _course.StartDate = StartDate;
                 _course.EndDate = EndDate;
                 _course.Status = FromStatusString(SelectedStatus);
-                _course.InstructorName = InstructorName.Trim();
-                _course.InstructorPhone = InstructorPhone.Trim();
-                _course.InstructorEmail = InstructorEmail.Trim();
-                _course.Notes = Notes ?? string.Empty;
+                _course.InstructorName = instrNameClean;
+                _course.InstructorPhone = instrPhoneClean;
+                _course.InstructorEmail = instrEmailClean;
+                _course.Notes = notesClean;
                 _course.StartAlertEnabled = StartAlertEnabled;
                 _course.EndAlertEnabled = EndAlertEnabled;
 
                 await _db.SaveCourseAsync(_course);
 
+                
                 if (_perf == null) _perf = new Assessment { CourseId = _course.Id, Type = AssessmentType.Performance };
-                _perf.Title = (PerfTitle ?? string.Empty).Trim();
+                _perf.Title = perfTitleClean;
                 _perf.StartDate = PerfStartDate;
                 _perf.DueDate = PerfEndDate;
                 _perf.StartAlertEnabled = PerfStartAlertEnabled;
                 _perf.EndAlertEnabled = PerfEndAlertEnabled;
                 await _db.SaveAssessmentAsync(_perf);
 
+                
                 if (_obj == null) _obj = new Assessment { CourseId = _course.Id, Type = AssessmentType.Objective };
-                _obj.Title = (ObjTitle ?? string.Empty).Trim();
+                _obj.Title = objTitleClean;
                 _obj.StartDate = ObjStartDate;
                 _obj.DueDate = ObjEndDate;
                 _obj.StartAlertEnabled = ObjStartAlertEnabled;
@@ -213,7 +286,9 @@ namespace Mobile_Application_Development.ViewModels
                 await Shell.Current.Navigation.PopAsync();
             }
             catch (Exception ex)
-            { await Shell.Current.DisplayAlert("Error", $"Could not save:\n{ex.Message}", "OK"); }
+            {
+                await Shell.Current.DisplayAlert("Error", $"Could not save:\n{ex.Message}", "OK");
+            }
             finally { IsBusy = false; }
         }
 
@@ -352,18 +427,8 @@ namespace Mobile_Application_Development.ViewModels
             LocalNotificationCenter.Current.Cancel(EndNotificationId);
         }
 
-        private static bool IsValidEmail(string email)
-        {
-            if (string.IsNullOrWhiteSpace(email)) return false;
-            return Regex.IsMatch(email, @"^[^@\s]+@[^@\s]+\.[^@\s]+$", RegexOptions.CultureInvariant);
-        }
-
-        private static bool IsLikelyPhone(string phone)
-        {
-            if (string.IsNullOrWhiteSpace(phone)) return false;
-            var digits = Regex.Replace(phone, @"\D", "");
-            return digits.Length >= 10;
-        }
+        private static bool IsValidEmail(string email) => LooksLikeEmail(email);
+        private static bool IsLikelyPhone(string phone) => LooksLikePhone(phone);
 
         private static string ToStatusString(CourseStatus status) => status switch
         {

@@ -7,19 +7,19 @@
     Title="Search">
 
     <ContentPage.BindingContext>
-        <!-- no DI: create the VM directly -->
+      
         <viewmodels:SearchViewModel />
     </ContentPage.BindingContext>
 
     <VerticalStackLayout Padding="16" Spacing="12">
 
-        <!-- Search input -->
+        
         <SearchBar
             Placeholder="Search terms, courses, assessments"
             Text="{Binding Query}"
             SearchCommand="{Binding RunSearchCommand}" />
 
-        <!-- Results list -->
+       
         <CollectionView ItemsSource="{Binding Results}">
             <CollectionView.EmptyView>
                 <Label Text="Type and press search to see results." Opacity="0.6" HorizontalOptions="Center" />
@@ -33,7 +33,7 @@
                             <Label Text="{Binding Title}" FontSize="16" />
                             <Label Text="{Binding Subtitle}" FontSize="12" Opacity="0.7" />
                         </VerticalStackLayout>
-                        <!-- You can wire this up later to navigate to details -->
+                       
                         <Image Grid.Column="2" Source="chevron_right.png" WidthRequest="20" HeightRequest="20" />
                     </Grid>
                 </DataTemplate>

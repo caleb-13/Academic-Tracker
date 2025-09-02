@@ -39,7 +39,7 @@
             <Label Text="Notes (optional)" FontAttributes="Bold" />
             <Editor Text="{Binding Notes, Mode=TwoWay}" HeightRequest="100" AutoSize="TextChanges" />
 
-            <!-- Course-level alerts -->
+           
             <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto" ColumnSpacing="12">
                 <Label Text="Alert on Start Date" Grid.Row="0" Grid.Column="0" />
                 <Switch IsToggled="{Binding StartAlertEnabled, Mode=TwoWay}" Grid.Row="0" Grid.Column="1" />
@@ -48,7 +48,7 @@
                 <Switch IsToggled="{Binding EndAlertEnabled, Mode=TwoWay}" Grid.Row="1" Grid.Column="1" />
             </Grid>
 
-            <!-- Performance Assessment -->
+           
             <Frame BorderColor="LightGray" CornerRadius="10" Padding="12">
                 <VerticalStackLayout Spacing="8">
                     <Label Text="Performance Assessment" FontAttributes="Bold" />
@@ -72,7 +72,7 @@
                 </VerticalStackLayout>
             </Frame>
 
-            <!-- Objective Assessment -->
+            
             <Frame BorderColor="LightGray" CornerRadius="10" Padding="12">
                 <VerticalStackLayout Spacing="8">
                     <Label Text="Objective Assessment" FontAttributes="Bold" />

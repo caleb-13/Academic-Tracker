@@ -1,4 +1,4 @@
-﻿// Services/SearchService.cs
+﻿
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,7 +8,7 @@ using Mobile_Application_Development.Models;
 
 namespace Mobile_Application_Development.Services
 {
-    // Lightweight DTO the UI can bind to
+
     public record SearchResult(string Entity, int Id, string Title, string Subtitle);
 
     public class SearchService
@@ -27,7 +27,7 @@ namespace Mobile_Application_Development.Services
 
             var results = new List<SearchResult>();
 
-            // --- Terms ---
+       
             var terms = await _db.GetTermsAsync();
             foreach (var t in terms.Where(t => Contains(t.Title, query)))
             {
@@ -35,7 +35,7 @@ namespace Mobile_Application_Development.Services
                 results.Add(new SearchResult("Term", t.Id, t.Title, subtitle));
             }
 
-            // --- Courses ---
+  
             var courses = await _db.GetAllCoursesAsync();
             foreach (var c in courses.Where(c =>
                 Contains($"{c.Title} {c.Status} {c.InstructorName} {c.InstructorEmail} {c.InstructorPhone}", query)))
@@ -44,7 +44,6 @@ namespace Mobile_Application_Development.Services
                 results.Add(new SearchResult("Course", c.Id, c.Title, subtitle));
             }
 
-            // --- Assessments ---
             var assessments = await _db.GetAllAssessmentsAsync();
             foreach (var a in assessments.Where(a =>
                 Contains($"{a.Title} {a.Type}", query)))
@@ -54,7 +53,7 @@ namespace Mobile_Application_Development.Services
             }
 
             return results
-                .OrderBy(r => r.Entity)   // groups Terms/Courses/Assessments together
+                .OrderBy(r => r.Entity)  
                 .ThenBy(r => r.Title)
                 .ToList();
         }

@@ -8,17 +8,20 @@
     Title="Mobile_Application_Development">
 
     <TabBar>
-        <!-- Existing tab -->
         <ShellContent
-            Title="Terms"
-            ContentTemplate="{DataTemplate views:TermsPage}"
-            Route="TermsPage" />
+        Title="Terms"
+        ContentTemplate="{DataTemplate views:TermsPage}"
+        Route="TermsPage" />
 
-        <!-- New Search tab -->
         <ShellContent
-            Title="Search"
-            ContentTemplate="{DataTemplate views:SearchPage}"
-            Route="SearchPage" />
+        Title="Search"
+        ContentTemplate="{DataTemplate views:SearchPage}"
+        Route="SearchPage" />
+
+        <ShellContent
+        Title="Reports"
+        ContentTemplate="{DataTemplate views:ReportsPage}"
+        Route="ReportsPage" />
     </TabBar>
 
 </Shell>
